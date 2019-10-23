@@ -1,9 +1,11 @@
 #include <cstring>
+#include <iostream>
 #include "String.h"
 
-class String::Impl
+
+// NO SSO String implementation
+/*class String::Impl
 {
-    // TODO: write a definition of implementation class
     char* data_;
 
 public:
@@ -21,6 +23,27 @@ public:
     }
     ~Impl() {
         delete[] data_;
+    }
+};
+*/
+
+// BUF SSO String implementation
+class String::Impl {
+    char* data_;
+    char buf_[8];
+public:
+    Impl(const char* ptr) {
+        data_ = strlen(ptr) < 8 ? buf_ : new char[strlen(ptr) + 1];
+        strcpy(data_, ptr);
+    }
+    Impl(const Impl& other): Impl(other.data()) {
+
+    }
+    ~Impl() {
+        if (data_ != buf_) delete[] data_;
+    }
+    const char* data() const {
+        return data_;
     }
 };
 
@@ -41,9 +64,6 @@ String& String::operator=(const String& other){ // copy assignment operator
     String temp(other); // invoke copy constructor
     this->swap(temp); // swap contents
     return *this;
-
-    //this->pimpl_ = new Impl(other.pimpl_->data());
-    //return *this;
 }
 
 String& String::operator=(String&& other) noexcept{ // copy assignment operator
@@ -52,7 +72,9 @@ String& String::operator=(String&& other) noexcept{ // copy assignment operator
     return *this;
 }
 
-const char* String::data() const { return pimpl_->data(); }
+const char* String::data() const {
+    return pimpl_->data();
+}
 
 void String::swap(String& other) noexcept {
     std::swap(pimpl_, other.pimpl_);
